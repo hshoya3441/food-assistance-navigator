@@ -1,1 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width-width, initial-scale=1.0">
+    <title>Food Assistance Navigator</title>
+    <style>
+      body{
+        font-family: Arial, sans-serif;
+        margin:0;
+        background:#f5f5f5;
+        color:#333;
+      }
+      header{
+        background:#2e7d32;
+        color:white;
+        padding:16px;
+        text-align:center;
+      }
+      .container{
+        max-width:700px;
+        margin:auto;
+        padding:16px;
+      }
 
+      .search-box{
+        background:white;
+        padding:16px;
+        border-radius:8px;
+        margin-bottom:16px;
+      }
+
+      input, select, button{
+        width:100%;
+        padding:10px;
+        margin-top:10px;
+        border-radius:6px;
+        border:1px solid #ccc;
+        font-size:16px
+      }
+
+      button{
+        background:#2e7d32;
+        color:white;
+        border:none;
+        cursor:pointer;
+      }
+
+      .result{
+        background:white;
+        padding:14px;
+        border-radius:8px;
+        margin-bottom:10px;
+      }
+
+      .name{
+        font-weight:bold;
+        font-size:18px;
+      }
+
+      .info{
+        font-size:14px;
+        margin-top:4px;
+      }
+      
+    </style>
+  </head>
+
+  <body>
+
+    <header>
+      <h2>Food Assistance Navigator</h2>
+      <p>Find food assistance near you today</p>   
+    </header>
+
+    <div class="container">
+      <div class="search-box">
+
+        <label>ZIP Code</label>
+        <input id="zipInput" placeholder="Enter ZIP code">
+
+        <lebel>Type of Assistance</lebel>
+        <select id="typeSelect">
+          <option value="all">All</option>
+          <option value="pantry">Food Pantry</option>
+          <option value="meal">Free Meal</option>
+        </select>
+
+        <button onclick="search()">Search</button>
+
+      </div>
+
+      <div id="results"></div>
+    </div>
+
+    <script>
+
+      const places = [
+        {
+          name:"San Antonio Food Bank",
+          zip:"78227",
+          type:"food bank",
+          time:"Mon - Fri 08:00 am - 05:00 pm",
+          address:"5200 Historic, Old Hwy 90 W",
+        },
+        {
+          name:"New Braunfels Food Bank",
+          zip:"78130",
+          type:"food bank",
+          time:"Mon - Sat 08:00 am - 05:00 pm",
+          address:"1620 S Seguin Ave",
+        }
+        <!-- 追加のフードバンクなどはここに追加する　-->
+        ];
+
+      function search(){
+        const zip = document.getElementById("zipInput").value;
+        const type = document.getElementById("typeSelect").value;
+
+        const results = document.getElemntById("result");
+        result.innerHTML = "";
+
+        const filtered = places.filter(p =>
+          p.zip.startsWith(zip) &&
+          (type === "all" || p.type === type)
+                                       );
+
+        if(filtered.length === 0){
+          results.innerHTML = "<p>No results found.</p>";
+        }
+
+        filtered.firEach(p => {
+
+          const div = document.createElement("div");
+          div.className = "result";
+
+          div.innerHTML = '
+            <div class="name">${p.name}</div>
+                         <div class="info">Type: ${p.type}</div>
+        <div class="info">Time: ${p.time}</div>
+        <div class="info">Address: ${p.address}</div>
+        ';
+
+        results.appendChild(div);
+
+      });
+      }
+    </script>
+  </body>
