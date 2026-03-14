@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Assistance Navigator</title>
     <style>
       body{
@@ -79,7 +79,7 @@
         <label>ZIP Code</label>
         <input id="zipInput" placeholder="Enter ZIP code">
 
-        <lebel>Type of Assistance</lebel>
+        <label>Type of Assistance</label>
         <select id="typeSelect">
           <option value="all">All</option>
           <option value="pantry">Food Pantry</option>
@@ -99,26 +99,26 @@
         {
           name:"San Antonio Food Bank",
           zip:"78227",
-          type:"food bank",
+          type:"pantry",
           time:"Mon - Fri 08:00 am - 05:00 pm",
           address:"5200 Historic, Old Hwy 90 W",
         },
         {
           name:"New Braunfels Food Bank",
           zip:"78130",
-          type:"food bank",
+          type:"pantry",
           time:"Mon - Sat 08:00 am - 05:00 pm",
           address:"1620 S Seguin Ave",
         }
-        <!-- 追加のフードバンクなどはここに追加する　-->
+        //追加のフードバンクなどはここに追加する
         ];
 
       function search(){
         const zip = document.getElementById("zipInput").value;
         const type = document.getElementById("typeSelect").value;
 
-        const results = document.getElemntById("result");
-        result.innerHTML = "";
+        const results = document.getElementById("result");
+        results.innerHTML = "";
 
         const filtered = places.filter(p =>
           p.zip.startsWith(zip) &&
@@ -129,17 +129,17 @@
           results.innerHTML = "<p>No results found.</p>";
         }
 
-        filtered.firEach(p => {
+        filtered.forEach(p => {
 
           const div = document.createElement("div");
           div.className = "result";
 
-          div.innerHTML = '
+          div.innerHTML = `
             <div class="name">${p.name}</div>
                          <div class="info">Type: ${p.type}</div>
         <div class="info">Time: ${p.time}</div>
         <div class="info">Address: ${p.address}</div>
-        ';
+        `;
 
         results.appendChild(div);
 
