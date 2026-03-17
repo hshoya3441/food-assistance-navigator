@@ -181,26 +181,31 @@
 
   // ★ GPS検索
   function searchByGPS(){
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
 
-      const type = document.getElementById("typeSelect").value;
+    const type = document.getElementById("typeSelect").value;
 
-      const filtered = places
-        .filter(p => type === "all" || p.type === type)
-        .map(p => ({
-          ...p,
-          dist: distance(lat, lng, p.lat, p.lng)
-        }))
-        .sort((a,b) => a.dist - b.dist);
+    const filtered = places
+      .filter(p => type === "all" || p.type === type)
+      .map(p => ({
+        ...p,
+        dist: distance(lat, lng, p.lat, p.lng)
+      }))
+      .sort((a,b) => a.dist - b.dist);
 
-      showResults(filtered);
+    showResults(filtered);
 
-    }, () => {
-      alert("GPS location could not be retrieved");
-    });
-  }
+  }, () => {
+    alert("GPS location could not be retrieved");
+  }, {
+    enableHighAccuracy: false,  // ★高速化のポイント
+    timeout: 5000,              // ★待ち時間を短く
+    maximumAge: 60000           // ★キャッシュ利用で高速化
+  });
+}
+
 </script>
 
 </body>
