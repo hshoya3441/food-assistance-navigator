@@ -70,8 +70,8 @@
 <div class="container">
 
   <div class="search-box">
-    <label>ZIP Code</label>
-    <input id="zipInput" placeholder="Enter ZIP code">
+    <label>ZIP Code or City Name</label>
+    <input id="zipInput" placeholder="Enter ZIP or City">
 
     <label>Type of Assistance</label>
     <select id="typeSelect">
@@ -80,7 +80,7 @@
       <option value="meal">Free Meal</option>
     </select>
 
-    <button onclick="searchByZip()">Search by ZIP</button>
+    <button onclick="searchByInput()">Search</button>
     <button onclick="searchByGPS()">Use My Location (GPS)</button>
   </div>
 
@@ -88,7 +88,7 @@
 </div>
 
 <script>
-  // ★ 施設データ（緯度経度は後でAPIで取得してもOK）
+  // ★ 施設データ
   const places = [
     {
       name:"San Antonio Food Bank",
@@ -108,13 +108,16 @@
 
   const API_KEY = "6b2e1f25fc9e3693673ff1e1efbe4968";
 
-  // ★ ZIP → 緯度経度を取得
-  async function getLatLngFromZip(zip){
-    const url = `https://api.openweathermap.org/geo/1.0/zip?zip=${zip},US&appid=${API_KEY}`;
+  // ★ ZIP または都市名 → 緯度経度を取得
+  async function getLatLng(query){
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=1&appid=${API_KEY}`;
     const res = await fetch(url);
     if(!res.ok) return null;
+
     const data = await res.json();
-    return { lat: data.lat, lng: data.lon };
+    if(data.length === 0) return null;
+
+    return { lat: data[0].lat, lng: data[0].lon };
   }
 
   // ★ 距離計算（Haversine）
@@ -133,38 +136,45 @@
 
   // ★ 結果表示
   function showResults(list){
-  const results = document.getElementById("results");
-  results.innerHTML = "";
+    const results = document.getElementById("results");
+    results.innerHTML = "";
 
-  list.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "result";
-    div.innerHTML = `
-      <div class="name">${p.name}</div>
-      <div class="info">Distance: ${p.dist.toFixed(2)} km</div>
-      <div class="info">Type: ${p.type}</div>
-      <div class="info">
-        Address:
-        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.address)}"
-           target="_blank"
-           style="color:#1a73e8; text-decoration:underline;">
-           ${p.address}
-        </a>
-      </div>
-    `;
-    results.appendChild(div);
-  });
-}
+    list.forEach(p => {
+      const div = document.createElement("div");
+      div.className = "result";
+      div.innerHTML = `
+        <div class="name">${p.name}</div>
+        <div class="info">Distance: ${p.dist.toFixed(2)} km</div>
+        <div class="info">Type: ${p.type}</div>
+        <div class="info">
+          Address:
+          <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.address)}"
+             target="_blank"
+             style="color:#1a73e8; text-decoration:underline;">
+             ${p.address}
+          </a>
+        </div>
+      `;
+      results.appendChild(div);
+    });
+  }
 
-
-  // ★ ZIP検索
-  async function searchByZip(){
-    const zip = document.getElementById("zipInput").value;
+  // ★ ZIP or City 検索
+  async function searchByInput(){
+    const query = document.getElementById("zipInput").value.trim();
     const type = document.getElementById("typeSelect").value;
 
-    const userPos = await getLatLngFromZip(zip);
+    if(!query){
+      alert("Please enter a ZIP code or city name");
+      return;
+    }
+
+    document.getElementById("results").innerHTML = "<p>Searching...</p>";
+
+    const userPos = await getLatLng(query);
     if(!userPos){
-      alert("ZIP code not found");
+      document.getElementById("results").innerHTML =
+        "<p>Location not found. Please check ZIP or city name.</p>";
       return;
     }
 
@@ -179,35 +189,34 @@
     showResults(filtered);
   }
 
-
   // ★ GPS検索
   function searchByGPS(){
     document.getElementById("results").innerHTML = "<p>Getting your location...</p>";
-  navigator.geolocation.getCurrentPosition(pos => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
 
-    const type = document.getElementById("typeSelect").value;
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
 
-    const filtered = places
-      .filter(p => type === "all" || p.type === type)
-      .map(p => ({
-        ...p,
-        dist: distance(lat, lng, p.lat, p.lng)
-      }))
-      .sort((a,b) => a.dist - b.dist);
+      const type = document.getElementById("typeSelect").value;
 
-    showResults(filtered);
+      const filtered = places
+        .filter(p => type === "all" || p.type === type)
+        .map(p => ({
+          ...p,
+          dist: distance(lat, lng, p.lat, p.lng)
+        }))
+        .sort((a,b) => a.dist - b.dist);
 
-  }, () => {
-    alert("GPS location could not be retrieved");
-  }, {
-    enableHighAccuracy: false,  // ★高速化のポイント
-    timeout: 5000,              // ★待ち時間を短く
-    maximumAge: 60000           // ★キャッシュ利用で高速化
-  });
-}
+      showResults(filtered);
 
+    }, () => {
+      alert("GPS location could not be retrieved");
+    }, {
+      enableHighAccuracy: false,
+      timeout: 5000,
+      maximumAge: 60000
+    });
+  }
 </script>
 
 </body>
