@@ -143,7 +143,12 @@
         <div class="name">${p.name}</div>
         <div class="info">Distance: ${p.dist.toFixed(2)} km</div>
         <div class="info">Type: ${p.type}</div>
-        <div class="info">Address: ${p.address}</div>
+        <div class="info">Address: <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.address)}"
+           target="_blank"
+           style="color:#1a73e8; text-decoration:underline;">
+           ${p.address}
+        </a>
+</div>
       `;
       results.appendChild(div);
     });
