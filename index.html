@@ -110,33 +110,17 @@
 
   // ★ ZIP または都市名 → 緯度経度を取得
   async function getLatLng(query){
-  // 数字5桁 → ZIP と判断
-  const isZip = /^\d{5}$/.test(query);
-
-  let url;
-
-  if(isZip){
-    // ZIPコード検索
-    url = `https://api.openweathermap.org/geo/1.0/zip?zip=${query},US&appid=${API_KEY}`;
-  } else {
-    // 都市名検索
-    url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=1&appid=${API_KEY}`;
-  }
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=1&appid=${API_KEY}`;
 
   const res = await fetch(url);
   if(!res.ok) return null;
 
   const data = await res.json();
+  if(data.length === 0) return null;
 
-  // ZIP の場合はオブジェクト、都市名は配列で返る
-  if(isZip){
-    if(!data.lat || !data.lon) return null;
-    return { lat: data.lat, lng: data.lon };
-  } else {
-    if(data.length === 0) return null;
-    return { lat: data[0].lat, lng: data[0].lon };
-  }
+  return { lat: data[0].lat, lng: data[0].lon };
 }
+
 
 
   // ★ 距離計算（Haversine）
