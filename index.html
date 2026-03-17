@@ -181,6 +181,7 @@
 
   // ★ GPS検索
   function searchByGPS(){
+    document.getElementById("results").innerHTML = "<p>Getting your location...</p>";
   navigator.geolocation.getCurrentPosition(pos => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
